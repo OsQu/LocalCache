@@ -1,0 +1,18 @@
+[submodule "vm/cookbooks/nodejs"]
+	path = vm/cookbooks/nodejs
+	url = git@github.com:redguide/nodejs.git
+[submodule "vm/cookbooks/apt"]
+	path = vm/cookbooks/apt
+	url = git@github.com:opscode-cookbooks/apt.git
+[submodule "vm/cookbooks/ark"]
+	path = vm/cookbooks/ark
+	url = git@github.com:burtlo/ark.git
+[submodule "vm/cookbooks/build-essential"]
+	path = vm/cookbooks/build-essential
+	url = git@github.com:opscode-cookbooks/build-essential.git
+[submodule "vm/cookbooks/yum-epel"]
+	path = vm/cookbooks/yum-epel
+	url = git@github.com:chef-cookbooks/yum-epel.git
+[submodule "vm/cookbooks/yum"]
+	path = vm/cookbooks/yum
+	url = git@github.com:chef-cookbooks/yum.git
