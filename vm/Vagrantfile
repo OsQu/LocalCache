@@ -13,15 +13,21 @@ Vagrant.configure(2) do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://atlas.hashicorp.com/search.
   config.vm.box = "chef/centos-6.5"
+  config.vm.network "forwarded_port", guest: 80, host: 8080
+  config.vm.synced_folder "../server", "/etc/localcache"
 
   config.vm.provision "chef_solo" do |chef|
+    chef.cookbooks_path = "cookbooks"
     chef.add_recipe "nodejs"
     chef.add_recipe "redisio"
     chef.add_recipe "redisio::enable"
 
     chef.json = {
       "nodejs" => {
-        "install_method" => "binary"
+        "install_method" => "binary",
+        "npm_packages" => [
+          { "name" => "forever" }
+        ],
       },
       "redisio" => {
         "servers" => [
@@ -31,12 +37,12 @@ Vagrant.configure(2) do |config|
     }
   end
 
+  # Latest chef has problems with ark cookbook
+  config.omnibus.chef_version = '11.18.6'
+
   config.vm.provider "virtualbox" do |v|
     v.memory = 2048
   end
-
-  # Latest chef has problems with ark cookbook
-  config.omnibus.chef_version = '11.18.6'
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
