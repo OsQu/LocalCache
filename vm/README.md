@@ -8,7 +8,24 @@ Installation
 
 Install pre-requisites Vagrant and VirtualBox. Then run:
 
-    $ Todo
+    $ vagrant plugin install vagrant-omnibus
+
+to install `vagrant-omnibus` plugin that is used for provisioining.
+
+To start the server, type:
+
+    $ vagrant up
+
+After the server is installed and provisioined, you should be able to access it with
+
+    $ vagrant ssh
+
+`server` folder is already mounted to `/etc/localcache`, so you can `cd` to there and start the node app. `Vagrantfile` already contains portforwarding from :8080 (host) -> 80 (quest), so you should be able to start the Node server and access it in your computer with:
+
+    $ cd /etc/localcache
+    $ sudo PORT=80 /usr/local/bin/node app.js
+
+Now open http://localhost:8080 at your browser.
 
 Provisioning
 ------------
