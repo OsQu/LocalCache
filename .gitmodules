@@ -16,3 +16,9 @@
 [submodule "vm/cookbooks/yum"]
 	path = vm/cookbooks/yum
 	url = git@github.com:chef-cookbooks/yum.git
+[submodule "vm/cookbooks/redisio"]
+	path = vm/cookbooks/redisio
+	url = git@github.com:brianbianco/redisio.git
+[submodule "vm/cookbooks/ulimit"]
+	path = vm/cookbooks/ulimit
+	url = git@github.com:bmhatfield/chef-ulimit.git
