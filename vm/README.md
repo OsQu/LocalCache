@@ -6,6 +6,10 @@ This is a virtual machine intended for development usage. It is run with [Vagran
 Installation
 ------------
 
+Fetch git submodules:
+
+    $ git submodule update --init
+
 Install pre-requisites Vagrant and VirtualBox. Then run:
 
     $ vagrant plugin install vagrant-omnibus
