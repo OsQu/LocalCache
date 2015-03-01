@@ -29,6 +29,8 @@ public class MainActivity extends ActionBarActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
+		textDisplay = (TextView) findViewById(R.id.text_display);
+		
 	}
 
 	@Override
@@ -60,21 +62,14 @@ public class MainActivity extends ActionBarActivity {
 		return queue;
 		
 	}
-	private TextView getTextDisplay() {
-		if (textDisplay == null) {
-			textDisplay = (TextView) findViewById(R.id.text_display);
-		}
-		return textDisplay;
-	}
 	
 	public void fetchContent(View view) {
 		JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, apiUrl, null,
 			    new Response.Listener<JSONObject>()
 			    {
 			        @Override
-			        public void onResponse(JSONObject response) {  
-			        	TextView tv = getTextDisplay();
-			        	tv.setText("Fetched content!");
+			        public void onResponse(JSONObject response) {  ;
+			        	textDisplay.setText("Fetched content!");
 			        	
 			        }
 			    },
@@ -82,8 +77,7 @@ public class MainActivity extends ActionBarActivity {
 			    {
 			         @Override
 			         public void onErrorResponse(VolleyError error) {           
-				        TextView tv = getTextDisplay();
-				        tv.setText("Failed to fetch content.");
+				        textDisplay.setText("Failed to fetch content.");
 			       }
 			    }
 			);
