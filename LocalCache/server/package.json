@@ -1,0 +1,26 @@
+{
+  "name": "LocalCache",
+  "version": "0.0.1",
+  "description": "Local Cache deployed to RACK for Helsingin Sanomat",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:OsQu/LocalCache.git"
+  },
+  "keywords": [
+    "cache"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/OsQu/LocalCache/issues"
+  },
+  "homepage": "https://github.com/OsQu/LocalCache",
+  "dependencies": {
+    "express": "^4.11.2",
+    "winston": "^0.9.0"
+  }
+}
