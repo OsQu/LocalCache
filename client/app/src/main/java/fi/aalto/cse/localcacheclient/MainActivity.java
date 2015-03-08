@@ -9,19 +9,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.Volley;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.Response;
 
 public class MainActivity extends ActionBarActivity {
 	
-	public static final String apiUrl = "http://www.hs.fi/rest/k/editions/uusin/";
-
-	private RequestQueue queue;
 	
+
 	private TextView textDisplay;
 	
 	@Override
@@ -54,36 +46,11 @@ public class MainActivity extends ActionBarActivity {
 
 		return super.onOptionsItemSelected(item);
 	}
-	private RequestQueue getRequestQueue() {
-		
-		if (queue == null) {
-			queue = Volley.newRequestQueue(this);
-		}
-		return queue;
-		
-	}
+
 	
 	public void fetchContent(View view) {
-		JsonObjectRequest request = new JsonObjectRequest(Request.Method.GET, apiUrl, null,
-			    new Response.Listener<JSONObject>()
-			    {
-			        @Override
-			        public void onResponse(JSONObject response) {  ;
-			        	textDisplay.setText("Fetched content!");
-			        	
-			        }
-			    },
-			    new Response.ErrorListener()
-			    {
-			         @Override
-			         public void onErrorResponse(VolleyError error) {           
-				        textDisplay.setText("Failed to fetch content.");
-			       }
-			    }
-			);
-		RequestQueue queue = getRequestQueue();
-		queue.add(request);
-		
+		NetworkManager.getInstance().startFetch();
+		textDisplay.setText("Started fetching");
 	}
 	
 }
