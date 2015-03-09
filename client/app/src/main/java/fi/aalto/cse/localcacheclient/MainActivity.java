@@ -1,9 +1,7 @@
 package fi.aalto.cse.localcacheclient;
 
-import org.json.JSONObject;
-
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -12,8 +10,6 @@ import android.widget.TextView;
 
 public class MainActivity extends ActionBarActivity {
 	
-	
-
 	private TextView textDisplay;
 	
 	@Override
@@ -49,7 +45,7 @@ public class MainActivity extends ActionBarActivity {
 
 	
 	public void fetchContent(View view) {
-		NetworkManager.getInstance().startFetch();
+		NetworkManager.getInstance(this).startFetch(NetworkManager.FetchType.FETCH_FROM_HS);
 		textDisplay.setText("Started fetching");
 	}
 	
