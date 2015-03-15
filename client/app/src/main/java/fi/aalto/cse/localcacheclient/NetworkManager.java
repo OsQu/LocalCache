@@ -28,6 +28,17 @@ public class NetworkManager {
     private static final String serverUrl = "http://188.166.59.119/event";
     //TODO change this to our cache server.
     private static final String cacheApiUrl = "http://www.hs.fi/rest/k/editions/uusin/";
+    public static final String DATA = "data";
+    public static final String ARTICLES = "articles";
+    public static final String MAIN_PICTURE = "mainPicture";
+    public static final String URL = "url";
+    public static final String WIDTH_BRACKETS = "{width}";
+    public static final String WIDTH = "width";
+    public static final String TYPE_BRACKETS = "{type}";
+    public static final String IMAGE_TYPE = "nelio";
+    public static final String PICTURES = "pictures";
+    public static final String EDITORS = "editors";
+    public static final String PICTURE = "picture";
 
     public static enum FetchType {
         FETCH_FROM_HS(hsApiUrl, "HS"), FETCH_FROM_CACHE(cacheApiUrl, "CACHE");
@@ -48,7 +59,7 @@ public class NetworkManager {
             return shortRepresentation;
         }
     }
-    
+
     private static NetworkManager instance;
 
     private ExecutorService execService = Executors.newFixedThreadPool(5);
@@ -79,7 +90,7 @@ public class NetworkManager {
                 }
             }
         }
-        
+
         //New fetch
         currentFetchType = fetchType;
         futures.clear();
@@ -94,7 +105,7 @@ public class NetworkManager {
                     long before = System.currentTimeMillis();
                     Response response = client.newCall(request).execute();
                     long diff = System.currentTimeMillis() - before;
-                    
+
                     if (response.isSuccessful()) {
                         sendStatsToServer(fetchType.getUrl(), diff, response.body().contentLength());
                         String responseBody = response.body().string();
@@ -109,41 +120,41 @@ public class NetworkManager {
     }
 
     private void parseJson(String jsonString) {
-        //TODO declare JSON keys as constants.
+
         try {
             JSONObject json = new JSONObject(jsonString);
-            JSONObject articles = json.getJSONObject("data").getJSONObject("articles");
-            Log.d(TAG, "Articles:"+articles.toString());
+            JSONObject articles = json.getJSONObject(DATA).getJSONObject(ARTICLES);
+            Log.d(TAG, ARTICLES+":"+articles.toString());
             Iterator<String> keys = articles.keys();
             while (keys.hasNext()) {
                 JSONObject article = articles.getJSONObject(keys.next());
-                JSONObject mainPicture = article.optJSONObject("mainPicture");
+                JSONObject mainPicture = article.optJSONObject(MAIN_PICTURE);
                 if (mainPicture != null) {
-                    String url = mainPicture.getString("url");
-                    url = url.replace("{width}", "" + mainPicture.getInt("width"));
-                    url = url.replace("{type}", "nelio");
+                    String url = mainPicture.getString(URL);
+                    url = url.replace(WIDTH_BRACKETS, "" + mainPicture.getInt(WIDTH));
+                    url = url.replace(TYPE_BRACKETS, IMAGE_TYPE);
                     fetchUrl(url);
                 }
                 // Additional pictures
-                JSONArray pictures = article.optJSONArray("pictures");
+                JSONArray pictures = article.optJSONArray(PICTURES);
                 if (pictures != null) {
                     for (int i = 0; i < pictures.length(); i++) {
-                        String url = ((JSONObject) pictures.get(i)).getString("url");
-                        url = url.replace("{width}", "" + ((JSONObject) pictures.get(i)).getInt("width"));
-                        url = url.replace("{type}", "nelio");
+                        String url = ((JSONObject) pictures.get(i)).getString(URL);
+                        url = url.replace(WIDTH_BRACKETS, "" + ((JSONObject) pictures.get(i)).getInt(WIDTH));
+                        url = url.replace(TYPE_BRACKETS, IMAGE_TYPE);
                         fetchUrl(url);
                     }
                 }
                 // Editor pictures
-                
-                JSONArray editorPictures = article.optJSONArray("editors");
+
+                JSONArray editorPictures = article.optJSONArray(EDITORS);
                 if (editorPictures != null) {
                     for (int i = 0; i < editorPictures.length(); i++) {
-                        JSONObject picture = ((JSONObject) editorPictures.get(i)).optJSONObject("picture");
+                        JSONObject picture = ((JSONObject) editorPictures.get(i)).optJSONObject(PICTURE);
                         if (picture != null) {
-                            String url = picture.getString("url");
-                            url = url.replace("{width}", "" + picture.getInt("width"));
-                            url = url.replace("{type}", "nelio");
+                            String url = picture.getString(URL);
+                            url = url.replace(WIDTH_BRACKETS, "" + picture.getInt(WIDTH));
+                            url = url.replace(TYPE_BRACKETS, IMAGE_TYPE);
                             fetchUrl(url);
                         }
                     }
