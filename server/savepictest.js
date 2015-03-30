@@ -13,12 +13,15 @@ client.on('error',function(err){
 });
 
 client.on('connect',function(){
-	client.hget('pictures','1425624449175',function(err,basestr){
+	client.hget('pictures','1427432609317',function(err,basestr){
 		var bitmap = new Buffer(basestr, 'base64');
-		fs.writeFileSync('test2', bitmap);
-	
+		
+		process.on('exit', function(code) {  		
+				fs.writeFileSync('test23', bitmap);
+	  });
+		process.exit(0);
 	});
-	
 });
+//client.unref();
 
 
