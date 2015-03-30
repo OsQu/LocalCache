@@ -17,10 +17,8 @@ Now you can start the server with
 
     $ node app.js
 
-Default PORT is 8080, but you can change it with `PORT` environment variable.
-
-
 Tests
 -----
+http://127.0.0.1:8080                ,this will render the whole json string
+http://127.0.0.1:8080/{pictureid}    ,this will render the pictures with the given pictureid
 
-TODO
