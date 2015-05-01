@@ -15,7 +15,7 @@ Running
 
 Now you can start the server with
 
-    $ node app.js
+    $ node app.js fetchtime  ,where 'fetchtime' should be a number less than 24 and greater or equal to 0
 
 Tests
 -----
