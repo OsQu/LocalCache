@@ -15,7 +15,8 @@ Running
 
 Now you can start the server with
 
-    $ node app.js fetchtime  ,where 'fetchtime' should be a number less than 24 and greater or equal to 0
+    $ node app.js fetchtime  
+    Where 'fetchtime' should be a number less than 24 and greater or equal to 0. The fetch time is the time when the app will try to update for new data from the HS server every day.
 
 Tests
 -----
