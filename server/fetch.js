@@ -1,7 +1,7 @@
 /* This code is used to parse the whole json data from hs and filter the pictures and save them in redis.
- * The pictures are saved in key 'pictures' using hash so that each picture is saved with its id.The
- * whole json data is also saved in redis db with key name "json"
- */
+   The pictures are saved in key 'pictures' using hash and each picture is saved with its id.The json
+   data is saved in with a key name "json" in redis db.
+*/
 module.exports.fetchFromHs=function(){
 	var http=require('http');
 	var redis=require('redis');
