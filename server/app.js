@@ -53,6 +53,7 @@ var server = http.createServer(function(request, response) {
 					response.writeHead(404);
   				response.end();
 				}
+        console.log(request.method + " " + request.url + ": " + response.statusCode)
 			});
 		}
 		else{
@@ -65,6 +66,7 @@ var server = http.createServer(function(request, response) {
 					response.writeHead(404);
   				response.end();
 				}
+        console.log(request.method + " " + request.url + ": " + response.statusCode)
 			});
 		}
 });
