@@ -5,25 +5,15 @@
 module.exports.fetchFromHs=function(){
 	var http=require('http');
 	var redis=require('redis');
-	var sleep=require("sleep");
+  var worker=require('./fetch_image_worker')
 	/*saves images in redis db*/
 	function saveImage(url,id,clnt){
-		var body='';
-		http.get(url,function(res){
-			res.setEncoding('base64');
-			res.on('data',function(chunk){
-				body+=chunk;
-			});
-			res.on('end',function(){
-				clnt.hset("pictures","/"+id,body);
-			});
-		}).on('error', function(e) {
-	  		console.log("Error: " + e.message);
-		});
+    worker.queueImage(url, id, clnt);
 	}
 
 	/*saves json string in redis db, fetchs pictures from hs server and trasfer the fetched pictures to 		saveImage function to be saved in redis db*/
 	function fetchAndSavePics(jsn){
+    console.log("Starting to save pictures");
 		var articles=jsn.data.articles;
 		var client=redis.createClient();
 		var json_str=JSON.stringify(jsn);
@@ -78,8 +68,9 @@ module.exports.fetchFromHs=function(){
 			catch(err){
 				console.log("invalid json"+err);
 			}
-	});
+    });
 	}).on('error', function(e) {
 	  console.log("Got error: " + e.message);
 	});
+  worker.process()
 };

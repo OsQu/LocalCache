@@ -40,7 +40,6 @@ function fetchNew(){
 }
 
 var server = http.createServer(function(request, response) {
-
 		/*if home url("/") is requested the response will be the whole json string*/
 		if(request.url=="/"){
 			client.get('json',function(err,data){
