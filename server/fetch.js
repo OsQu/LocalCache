@@ -12,48 +12,46 @@ module.exports.fetchFromHs=function(){
 	}
 
 	/*saves json string in redis db, fetchs pictures from hs server and trasfer the fetched pictures to 		saveImage function to be saved in redis db*/
-	function fetchAndSavePics(jsn){
+	function fetchAndSavePics(jsn, client){
     console.log("Starting to save pictures");
 		var articles=jsn.data.articles;
-		var client=redis.createClient();
 		var json_str=JSON.stringify(jsn);
 		if(jsn.data && jsn.data.articles){
 			client.on('error',function(err){
 				console.log("error: ",err);
-		});
-	    client.on('connect',function(){
-				/*save json in db*/
-				client.set("json",json_str);
-				/*save pictures in db, firts try to delet any key with name "pictures"*/
-				client.del("pictures",function (err, numRemoved) {
-          if(numRemoved==0 || numRemoved==1){
-						for(var articlekey in articles){
-							var article=articles[articlekey];
-							if(article){
-							if(article.pictures){
-									for(var picturekey in article.pictures){
-										var picture=article.pictures[picturekey];
-										if(picture.id && picture.url){
-											picture.url=picture.url.replace('{type}','nelio');
-											picture.url=picture.url.replace('{width}',picture.width);
-											saveImage(picture.url,picture.id,client);
-										}
-									}
-								}
-								if(article.mainPicture && article.mainPicture.id && article.mainPicture.url){
-									article.mainPicture.url=article.mainPicture.url.replace('{type}','nelio');
-									article.mainPicture.url=article.mainPicture.url.replace	('{width}',article.mainPicture.width);
-									saveImage(article.mainPicture.url,article.mainPicture.id,client);
-								}
-							}
-						}
-					}
-				});
-			});
-			/*exit process after all commands are processed*/
-			client.unref();
-		}
+      });
+
+      /*save json in db*/
+      client.set("json",json_str);
+      /*save pictures in db, firts try to delet any key with name "pictures"*/
+      client.del("pictures",function (err, numRemoved) {
+        if(numRemoved==0 || numRemoved==1){
+          for(var articlekey in articles){
+            var article=articles[articlekey];
+            if(article){
+            if(article.pictures){
+                for(var picturekey in article.pictures){
+                  var picture=article.pictures[picturekey];
+                  if(picture.id && picture.url){
+                    picture.url=picture.url.replace('{type}','nelio');
+                    picture.url=picture.url.replace('{width}',picture.width);
+                    saveImage(picture.url,picture.id,client);
+                  }
+                }
+              }
+              if(article.mainPicture && article.mainPicture.id && article.mainPicture.url){
+                article.mainPicture.url=article.mainPicture.url.replace('{type}','nelio');
+                article.mainPicture.url=article.mainPicture.url.replace	('{width}',article.mainPicture.width);
+                saveImage(article.mainPicture.url,article.mainPicture.id,client);
+              }
+            }
+          }
+        }
+      });
+    }
 	}
+  var client = redis.createClient();
+
 	/*fetchs json data from hs server*/
 	http.get('http://www.hs.fi/rest/k/editions/uusin/',function(res){
 		var body='';
@@ -63,7 +61,7 @@ module.exports.fetchFromHs=function(){
 		res.on('end',function(){
 			try{
 				var hsjson=JSON.parse(body);
-				fetchAndSavePics(hsjson);
+				fetchAndSavePics(hsjson, client);
 			}
 			catch(err){
 				console.log("invalid json"+err);
@@ -72,5 +70,6 @@ module.exports.fetchFromHs=function(){
 	}).on('error', function(e) {
 	  console.log("Got error: " + e.message);
 	});
-  worker.process()
+
+  worker.process().then(function() { client.unref(); });
 };
