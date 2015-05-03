@@ -5,7 +5,8 @@
 module.exports.fetchFromHs=function(){
 	var http=require('http');
 	var redis=require('redis');
-  var worker=require('./fetch_image_worker')
+  var worker=require('./fetch_image_worker');
+  var replaceLocal = require('./replace_local');
 	/*saves images in redis db*/
 	function saveImage(url,id,clnt){
     worker.queueImage(url, id, clnt);
@@ -22,7 +23,7 @@ module.exports.fetchFromHs=function(){
       });
 
       /*save json in db*/
-      client.set("json",json_str);
+      client.set("json",replaceLocal(json_str));
       /*save pictures in db, firts try to delet any key with name "pictures"*/
       client.del("pictures",function (err, numRemoved) {
         if(numRemoved==0 || numRemoved==1){
