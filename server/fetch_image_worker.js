@@ -3,6 +3,7 @@
 */
 var http = require('http');
 var Promise = require('promise');
+var URL = require('url');
 
 var FetchImageWorker = {
   queue: [],
@@ -54,7 +55,8 @@ var FetchImageWorker = {
 			});
 			res.on('end',function(){
         console.log("Saving picture: " + id);
-				clnt.hset("pictures","/"+id,body);
+        path = URL.parse(url).path
+				clnt.hset("pictures", path, body);
 			});
 		}).on('error', function(e) {
 	  		console.log("Error: " + url + " " + e.message);
