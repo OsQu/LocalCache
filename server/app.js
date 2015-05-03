@@ -44,7 +44,7 @@ var server = http.createServer(function(request, response) {
 		if(request.url=="/"){
 			client.get('json',function(err,data){
 				if(data){
-					response.writeHead(200, {"Content-Type": "application/json;charset=UTF-8"});
+					response.writeHead(200, { "Content-Type": "application/json;charset=UTF-8", "Content-Type": Buffer.byteLength(data) });
   				response.end(data);
 				}
 				else{
@@ -57,7 +57,7 @@ var server = http.createServer(function(request, response) {
 		else{
 			client.hget('pictures',request.url,function(err,data){
 				if(data){
-					response.writeHead(200, {"Content-Type": "image/jpeg"});
+					response.writeHead(200, { "Content-Type": "image/jpeg", "Content-Length": Buffer.byteLength(data) });
   				response.end(data,"base64");
 				}
 				else{
