@@ -1,5 +1,6 @@
 package fi.aalto.cse.localcacheclient;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -9,16 +10,17 @@ import android.widget.TextView;
 
 
 public class MainActivity extends ActionBarActivity {
-	
+
+    public static final String FETCHTYPE = "fi.aalto.cse.localcache.fetchtype";
 	private TextView textDisplay;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+
 		textDisplay = (TextView) findViewById(R.id.text_display);
-		
+
 	}
 
 	@Override
@@ -43,10 +45,13 @@ public class MainActivity extends ActionBarActivity {
 		return super.onOptionsItemSelected(item);
 	}
 
-	
+
 	public void fetchContent(View view) {
-		NetworkManager.getInstance(this).startFetch(NetworkManager.FetchType.FETCH_FROM_HS);
-		textDisplay.setText("Started fetching");
+        Intent intent = new Intent(this, FetchApiService.class);
+        intent.putExtra(FETCHTYPE, NetworkManager.FetchType.FETCH_FROM_HS);
+        this.startService(intent);
+        textDisplay.setText("Started fetching");
+
 	}
-	
+
 }
