@@ -65,7 +65,8 @@ module.exports.fetchFromHs=function(){
 				fetchAndSavePics(hsjson, client);
 			}
 			catch(err){
-				console.log("invalid json"+err);
+				console.log("Invalid JSON: " + err);
+        console.log(body);
 			}
     });
 	}).on('error', function(e) {
