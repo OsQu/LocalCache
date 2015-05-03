@@ -26,8 +26,7 @@ public class NetworkManager {
     private static final String TAG = NetworkManager.class.getSimpleName();
     private static final String hsApiUrl = "http://www.hs.fi/rest/k/editions/uusin/";
     private static final String serverUrl = "http://188.166.59.119/event";
-    //TODO change this to our cache server.
-    private static final String cacheApiUrl = "http://www.hs.fi/rest/k/editions/uusin/";
+    private static final String cacheApiUrl = "http://localcache.ngrok.com/";
     public static final String DATA = "data";
     public static final String ARTICLES = "articles";
     public static final String MAIN_PICTURE = "mainPicture";
