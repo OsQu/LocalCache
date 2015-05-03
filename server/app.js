@@ -2,7 +2,7 @@ var http = require("http");
 var redis=require('redis');
 var fetch=require("./fetch");
 var client=redis.createClient();
-const PORT=8080;
+var PORT = process.env.PORT || 8080;
 var json;
 
 /*parse fetching time from command line*/
@@ -17,7 +17,7 @@ else{
  console.log("Invalid command line argument.\nValide command: node app.js <fetchtime>  ,where fetchtime should be a number less than 24 and greater or equal to zero");
  process.exit();
 }
-	
+
 /*fetch json fromatted data and pictures from hs and save it to redis db*/
 fetch.fetchFromHs();
 
@@ -26,7 +26,7 @@ client.on('error',function(err){
 	console.log("error: ",err);
 });
 
-/*checks if it is time to download new data from HS server and download it if it is time*/ 
+/*checks if it is time to download new data from HS server and download it if it is time*/
 function fetchNew(){
 	var date=new Date();
 	var hour=date.getHours();
@@ -40,37 +40,36 @@ function fetchNew(){
 }
 
 var server = http.createServer(function(request, response) {
-	
+
 		/*if home url("/") is requested the response will be the whole json string*/
 		if(request.url=="/"){
 			client.get('json',function(err,data){
 				if(data){
-					response.writeHead(200, {"Content-Type": "application/json;charset=UTF-8"});  
+					response.writeHead(200, {"Content-Type": "application/json;charset=UTF-8"});
   				response.end(data);
 				}
 				else{
-					response.writeHead(404);  
+					response.writeHead(404);
   				response.end();
 				}
 			});
- 		 	
+
 		}
 		else{
-			
-			client.hget('pictures',request.url,function(err,data){				
+			client.hget('pictures',request.url,function(err,data){
 				if(data){
-					response.writeHead(200, {"Content-Type": "image/jpeg"});  
+					response.writeHead(200, {"Content-Type": "image/jpeg"});
   				response.end(data,"base64");
 				}
 				else{
-					response.writeHead(404);  
+					response.writeHead(404);
   				response.end();
 				}
-			});			
-		}	
+			});
+		}
 });
 
-/*Checks at least every 30 minutes and calls fetchNew() function which inturn checks if it is time to download new data from HS server and download it if it is time*/ 
+/*Checks at least every 30 minutes and calls fetchNew() function which inturn checks if it is time to download new data from HS server and download it if it is time*/
 setInterval(fetchNew,1800000);
 
 server.listen(PORT, function(){
