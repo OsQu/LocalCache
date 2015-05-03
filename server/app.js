@@ -6,7 +6,7 @@ var PORT = process.env.PORT || 8080;
 var json;
 
 /*parse fetching time from command line*/
-if(process.argv.length==3){
+if(process.argv.length >= 3){
 	var fetchTime=parseInt(process.argv[2],10);
 	if(isNaN(fetchTime) || fetchTime>23 || fetchTime<0){
 		console.log("Invalid fetchtime, fetchtime should be a number less than 24 and greater or equal to zero");
@@ -14,12 +14,14 @@ if(process.argv.length==3){
 	}
 }
 else{
- console.log("Invalid command line argument.\nValide command: node app.js <fetchtime>  ,where fetchtime should be a number less than 24 and greater or equal to zero");
+ console.log("Invalid command line argument.\nValide command: node app.js <fetchtime> [disable-prefetch]  ,where fetchtime should be a number less than 24 and greater or equal to zero");
  process.exit();
 }
 
 /*fetch json fromatted data and pictures from hs and save it to redis db*/
-fetch.fetchFromHs();
+if(process.argv[3] != "disable-prefetch") {
+  fetch.fetchFromHs();
+}
 
 /*Starts a connection with redis db*/
 client.on('error',function(err){
@@ -44,7 +46,7 @@ var server = http.createServer(function(request, response) {
 		if(request.url=="/"){
 			client.get('json',function(err,data){
 				if(data){
-					response.writeHead(200, { "Content-Type": "application/json;charset=UTF-8", "Content-Type": Buffer.byteLength(data) });
+					response.writeHead(200, { "Content-Type": "application/json;charset=UTF-8", "Content-Length": Buffer.byteLength(data) });
   				response.end(data);
 				}
 				else{
@@ -52,12 +54,11 @@ var server = http.createServer(function(request, response) {
   				response.end();
 				}
 			});
-
 		}
 		else{
 			client.hget('pictures',request.url,function(err,data){
 				if(data){
-					response.writeHead(200, { "Content-Type": "image/jpeg", "Content-Length": Buffer.byteLength(data) });
+					response.writeHead(200, { "Content-Type": "image/jpeg", "Content-Length": Buffer.byteLength(data, "base64") });
   				response.end(data,"base64");
 				}
 				else{
