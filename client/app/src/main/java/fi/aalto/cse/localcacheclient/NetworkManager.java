@@ -113,6 +113,7 @@ public class NetworkManager {
 
             @Override
             public void run() {
+                Log.d(TAG, "Fetching json");
                 progressListener.onNewFileDownload(fetchType.getUrl());
                 Request request = new Request.Builder()
                         .url(fetchType.getUrl())

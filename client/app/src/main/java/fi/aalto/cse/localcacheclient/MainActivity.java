@@ -84,15 +84,29 @@ public class MainActivity extends ActionBarActivity {
             mService = binder.getService();
             mService.setProgressListener(new OnProgressListener() {
                 @Override
-                public void onProgressUpdate(int completed, int total) {
-                    overallProgress.setMax(total);
-                    overallProgress.setProgress(completed);
+                public void onProgressUpdate(final int completed,final int total) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            overallProgress.setMax(total);
+                            overallProgress.setProgress(completed);
+                            if (completed >= total) {
+                                fetchCacheButton.setEnabled(true);
+                                fetchHsButton.setEnabled(true);
+                            }
+                        }
+                    });
                 }
 
                 @Override
-                public void onNewFileDownload(String fileName) {
-                    progresses.add(fileName);
-                    adapter.notifyDataSetChanged();
+                public void onNewFileDownload(final String fileName) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            progresses.add(fileName);
+                            adapter.notifyDataSetChanged();
+                        }
+                    });
                 }
             });
             mBound = true;
@@ -168,7 +182,7 @@ public class MainActivity extends ActionBarActivity {
                 view = inflater.inflate(R.layout.progress_layout, parent, false);
             }
 
-            TextView fileNameTextView = (TextView) findViewById(R.id.file);
+            TextView fileNameTextView = (TextView) view.findViewById(R.id.file);
             fileNameTextView.setText(progresses.get(position));
             return view;
         }

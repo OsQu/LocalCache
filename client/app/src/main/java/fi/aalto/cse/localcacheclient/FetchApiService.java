@@ -65,6 +65,7 @@ public class FetchApiService extends Service {
 
                 @Override
                 public void onNewFileDownload(String fileName) {
+                    Log.d(TAG, "onNewFileDownload "+fileName);
                     if (progressListener != null) {
                         progressListener.onNewFileDownload(fileName);
                     }
