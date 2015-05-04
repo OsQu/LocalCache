@@ -1,35 +1,55 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity" >
+    tools:context=".MainActivity">
 
     <Button
         android:id="@+id/button_send"
-        android:text="@string/button_send" 
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:onClick="fetchContent"/>
+        android:onClick="fetchContent"
+        android:text="@string/button_send" />
 
     <Button
         android:id="@+id/button_send_cache"
-        android:text="@string/button_send_cache"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/button_send"
         android:layout_marginTop="10dp"
-        android:onClick="fetchContentCache"/>
+        android:onClick="fetchContentCache"
+        android:text="@string/button_send_cache" />
 
-    <TextView
-        android:id="@+id/text_display"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/button_send"
-      />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="match_parent">
 
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:textColor="@android:color/black"
+            android:text="Overall Progress" />
 
-</RelativeLayout>
+        <ProgressBar
+            android:id="@+id/overall_progress"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp" />
+
+        <ListView
+            android:id="@+id/progress_list"
+            android:layout_width="match_parent"
+            android:layout_marginTop="10dp"
+            android:transcriptMode="alwaysScroll"
+            android:layout_height="match_parent"></ListView>
+    </LinearLayout>
+
+</LinearLayout>

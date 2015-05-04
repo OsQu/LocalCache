@@ -4,11 +4,13 @@ import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.Gson;
+import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.MediaType;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
+import com.squareup.okhttp.ResponseBody;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,11 +24,17 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import okio.Buffer;
+import okio.BufferedSource;
+import okio.ForwardingSource;
+import okio.Okio;
+import okio.Source;
+
 public class NetworkManager {
     private static final String TAG = NetworkManager.class.getSimpleName();
     private static final String hsApiUrl = "http://www.hs.fi/rest/k/editions/uusin/";
     private static final String serverUrl = "http://188.166.59.119/event";
-    private static final String cacheApiUrl = "http://localcache.ngrok.com/";
+    private static final String cacheApiUrl = "http://188.166.89.185/";
     public static final String DATA = "data";
     public static final String ARTICLES = "articles";
     public static final String MAIN_PICTURE = "mainPicture";
@@ -67,15 +75,19 @@ public class NetworkManager {
     private Gson gson = new Gson();
     private FetchType currentFetchType;
     private List<Future> futures = new ArrayList<>();
+    private OnProgressListener progressListener;
+    private int totalFileCount = 0;
+    private int completedFileCount = 0;
 
-    private NetworkManager(Context context) {
+    private NetworkManager(Context context, final OnProgressListener progressListener) {
         statFactory = new FetchStatFactory(context);
+        this.progressListener = progressListener;
     }
 
-    public static NetworkManager getInstance(Context context) {
+    public static NetworkManager getInstance(Context context, OnProgressListener progressListener) {
 
         if (instance == null) {
-            instance = new NetworkManager(context);
+            instance = new NetworkManager(context, progressListener);
         }
         return instance;
     }
@@ -90,13 +102,19 @@ public class NetworkManager {
             }
         }
 
+        Log.d(TAG, "Starting fetch!");
+
         //New fetch
         currentFetchType = fetchType;
         futures.clear();
+        totalFileCount = 1;
+        completedFileCount = 0;
         futures.add(execService.submit(new Runnable() {
 
             @Override
             public void run() {
+                Log.d(TAG, "Fetching json");
+                progressListener.onNewFileDownload(fetchType.getUrl());
                 Request request = new Request.Builder()
                         .url(fetchType.getUrl())
                         .build();
@@ -113,6 +131,7 @@ public class NetworkManager {
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
+                    Log.e(TAG, "Exception fetching");
                 }
             }
         }));
@@ -132,6 +151,7 @@ public class NetworkManager {
                     String url = mainPicture.getString(URL);
                     url = url.replace(WIDTH_BRACKETS, "" + mainPicture.getInt(WIDTH));
                     url = url.replace(TYPE_BRACKETS, IMAGE_TYPE);
+                    totalFileCount++;
                     fetchUrl(url);
                 }
                 // Additional pictures
@@ -141,11 +161,11 @@ public class NetworkManager {
                         String url = ((JSONObject) pictures.get(i)).getString(URL);
                         url = url.replace(WIDTH_BRACKETS, "" + ((JSONObject) pictures.get(i)).getInt(WIDTH));
                         url = url.replace(TYPE_BRACKETS, IMAGE_TYPE);
+                        totalFileCount++;
                         fetchUrl(url);
                     }
                 }
                 // Editor pictures
-
                 JSONArray editorPictures = article.optJSONArray(EDITORS);
                 if (editorPictures != null) {
                     for (int i = 0; i < editorPictures.length(); i++) {
@@ -154,11 +174,14 @@ public class NetworkManager {
                             String url = picture.getString(URL);
                             url = url.replace(WIDTH_BRACKETS, "" + picture.getInt(WIDTH));
                             url = url.replace(TYPE_BRACKETS, IMAGE_TYPE);
+                            totalFileCount++;
                             fetchUrl(url);
                         }
                     }
                 }
             }
+            completedFileCount++;
+            progressListener.onProgressUpdate(completedFileCount, totalFileCount);
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e(TAG, "JSON Exception"+e.getMessage());
@@ -171,6 +194,7 @@ public class NetworkManager {
 
             @Override
             public void run() {
+                progressListener.onNewFileDownload(url);
                 Request request = new Request.Builder()
                         .url(url)
                         .build();
@@ -180,6 +204,8 @@ public class NetworkManager {
                     long before = System.currentTimeMillis();
                     Response response = client.newCall(request).execute();
                     long diff = System.currentTimeMillis() - before;
+                    completedFileCount++;
+                    progressListener.onProgressUpdate(completedFileCount, totalFileCount);
                     if (response.isSuccessful()) {
                         sendStatsToServer(url, diff, response.body().contentLength());
                     }
