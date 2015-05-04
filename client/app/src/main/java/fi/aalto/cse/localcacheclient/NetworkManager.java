@@ -93,15 +93,6 @@ public class NetworkManager {
     }
 
     public void startFetch(final FetchType fetchType) {
-        if (!futures.isEmpty()) {
-            for (Future future : futures) {
-                if(!future.isDone()) {
-                    //We have a pending task. This means a fetch is already in progress.
-                    return;
-                }
-            }
-        }
-
         Log.d(TAG, "Starting fetch!");
 
         //New fetch
