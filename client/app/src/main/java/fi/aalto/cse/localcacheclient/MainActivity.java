@@ -51,7 +51,13 @@ public class MainActivity extends ActionBarActivity {
         intent.putExtra(FETCHTYPE, NetworkManager.FetchType.FETCH_FROM_HS);
         this.startService(intent);
         textDisplay.setText("Started fetching");
-
 	}
+
+    public void fetchContentCache(View view) {
+        Intent intent = new Intent(this, FetchApiService.class);
+        intent.putExtra(FETCHTYPE, NetworkManager.FetchType.FETCH_FROM_CACHE);
+        this.startService(intent);
+        textDisplay.setText("Started fetching");
+    }
 
 }

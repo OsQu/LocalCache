@@ -8,19 +8,21 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity" >
 
-    <TextView
-        android:id="@+id/hello_world"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/hello_world" />
-
     <Button
         android:id="@+id/button_send"
         android:text="@string/button_send" 
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/hello_world"
         android:onClick="fetchContent"/>
+
+    <Button
+        android:id="@+id/button_send_cache"
+        android:text="@string/button_send_cache"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/button_send"
+        android:layout_marginTop="10dp"
+        android:onClick="fetchContentCache"/>
 
     <TextView
         android:id="@+id/text_display"
