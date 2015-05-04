@@ -57,17 +57,30 @@ public class FetchApiService extends Service {
             Log.d(TAG, "Starting fetch!");
             NetworkManager.getInstance(this, new OnProgressListener() {
                 @Override
-                public void onProgressUpdate(int completed, int total) {
+                public void onProgressUpdate(Progress progress) {
                     if (progressListener != null) {
-                        progressListener.onProgressUpdate(completed, total);
+                        progressListener.onProgressUpdate(progress);
                     }
                 }
 
                 @Override
-                public void onNewFileDownload(String fileName) {
-                    Log.d(TAG, "onNewFileDownload "+fileName);
+                public void onNewFileDownload(Progress progress) {
                     if (progressListener != null) {
-                        progressListener.onNewFileDownload(fileName);
+                        progressListener.onNewFileDownload(progress);
+                    }
+                }
+
+                @Override
+                public void onFileCompleted(Progress progress) {
+                    if (progressListener != null) {
+                        progressListener.onFileCompleted(progress);
+                    }
+                }
+
+                @Override
+                public void onOverallProgress(int completed, int total) {
+                    if (progressListener != null) {
+                        progressListener.onOverallProgress(completed, total);
                     }
                 }
             }).startFetch(type);

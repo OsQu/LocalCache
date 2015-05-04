@@ -32,7 +32,7 @@ public class MainActivity extends ActionBarActivity {
     private LinearLayout progressContainer;
     private ProgressBar overallProgress;
     private ListView progressListView;
-    private List<String> progresses = new ArrayList<>();
+    private List<Progress> progresses = new ArrayList<>();
     private boolean mBound;
     private FetchApiService mService;
     private ProgressAdapter adapter;
@@ -84,27 +84,47 @@ public class MainActivity extends ActionBarActivity {
             mService = binder.getService();
             mService.setProgressListener(new OnProgressListener() {
                 @Override
-                public void onProgressUpdate(final int completed,final int total) {
+                public void onProgressUpdate(final Progress progress) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            overallProgress.setMax(total);
-                            overallProgress.setProgress(completed);
-                            if (completed >= total) {
-                                fetchCacheButton.setEnabled(true);
-                                fetchHsButton.setEnabled(true);
+                            for (Progress p:progresses) {
+                                if (p.getId() == progress.getId()) {
+                                    p.setSize(progress.getSize());
+                                    p.setPercentage(progress.getPercentage());
+                                    adapter.notifyDataSetChanged();
+                                }
                             }
                         }
                     });
                 }
 
                 @Override
-                public void onNewFileDownload(final String fileName) {
+                public void onNewFileDownload(final Progress progress) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            progresses.add(fileName);
+                            progresses.add(progress);
                             adapter.notifyDataSetChanged();
+                        }
+                    });
+                }
+
+                @Override
+                public void onFileCompleted(Progress progress) {
+                }
+
+                @Override
+                public void onOverallProgress(final int completed, final int total) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            overallProgress.setMax(total);
+                            overallProgress.setProgress(completed);
+                            if (completed == total) {
+                                fetchHsButton.setEnabled(true);
+                                fetchCacheButton.setEnabled(true);
+                            }
                         }
                     });
                 }
@@ -183,7 +203,11 @@ public class MainActivity extends ActionBarActivity {
             }
 
             TextView fileNameTextView = (TextView) view.findViewById(R.id.file);
-            fileNameTextView.setText(progresses.get(position));
+            fileNameTextView.setText(progresses.get(position).getFileName());
+
+            ProgressBar progressBar = (ProgressBar) view.findViewById(R.id.progress);
+            progressBar.setMax(100);
+            progressBar.setProgress((int) progresses.get(position).getPercentage() * 100);
             return view;
         }
     }

@@ -78,10 +78,75 @@ public class NetworkManager {
     private OnProgressListener progressListener;
     private int totalFileCount = 0;
     private int completedFileCount = 0;
+    private static int fileId = 0;
 
     private NetworkManager(Context context, final OnProgressListener progressListener) {
         statFactory = new FetchStatFactory(context);
         this.progressListener = progressListener;
+        client.networkInterceptors().add(new Interceptor() {
+            @Override public Response intercept(Chain chain) throws IOException {
+                Response originalResponse = chain.proceed(chain.request());
+                if (!chain.request().urlString().equals(serverUrl)) {
+                    fileId++;
+                    progressListener.onNewFileDownload(new Progress(fileId, 0.0f, chain.request().urlString(), originalResponse.body().contentLength()));
+                    return originalResponse.newBuilder()
+                            .body(new ProgressResponseBody(originalResponse.body(), progressListener, fileId, chain.request().urlString()))
+                            .build();
+                }
+                else {
+                    return originalResponse;
+                }
+            }
+        });
+    }
+
+    private class ProgressResponseBody extends ResponseBody {
+
+        private final ResponseBody responseBody;
+        private final OnProgressListener progressListener;
+        private BufferedSource bufferedSource;
+        private int fileId;
+        private String fileName;
+
+        public ProgressResponseBody(ResponseBody responseBody, OnProgressListener progressListener, int fileId, String fileName) {
+            this.responseBody = responseBody;
+            this.progressListener = progressListener;
+            this.fileId = fileId;
+            this.fileName = fileName;
+        }
+
+        @Override public MediaType contentType() {
+            return responseBody.contentType();
+        }
+
+        @Override public long contentLength() throws IOException {
+            return responseBody.contentLength();
+        }
+
+        @Override public BufferedSource source() throws IOException {
+            if (bufferedSource == null) {
+                bufferedSource = Okio.buffer(source(responseBody.source()));
+            }
+            return bufferedSource;
+        }
+
+        private Source source(Source source) {
+            return new ForwardingSource(source) {
+                long totalBytesRead = 0L;
+                @Override public long read(Buffer sink, long byteCount) throws IOException {
+                    long bytesRead = super.read(sink, byteCount);
+                    // read() returns the number of bytes read, or -1 if this source is exhausted.
+                    totalBytesRead += bytesRead != -1 ? bytesRead : 0;
+                    //progressListener.update(totalBytesRead, responseBody.contentLength(), bytesRead == -1);
+                    progressListener.onProgressUpdate(new Progress(fileId, ((float)totalBytesRead) / responseBody.contentLength(), fileName, responseBody.contentLength()));
+                    if (bytesRead == -1) {
+                        completedFileCount++;
+                        progressListener.onOverallProgress(completedFileCount, totalFileCount);
+                    }
+                    return bytesRead;
+                }
+            };
+        }
     }
 
     public static NetworkManager getInstance(Context context, OnProgressListener progressListener) {
@@ -107,14 +172,14 @@ public class NetworkManager {
         //New fetch
         currentFetchType = fetchType;
         futures.clear();
-        totalFileCount = 1;
+        fileId = 0;
+        totalFileCount = 0;
         completedFileCount = 0;
         futures.add(execService.submit(new Runnable() {
 
             @Override
             public void run() {
                 Log.d(TAG, "Fetching json");
-                progressListener.onNewFileDownload(fetchType.getUrl());
                 Request request = new Request.Builder()
                         .url(fetchType.getUrl())
                         .build();
@@ -180,8 +245,6 @@ public class NetworkManager {
                     }
                 }
             }
-            completedFileCount++;
-            progressListener.onProgressUpdate(completedFileCount, totalFileCount);
         } catch (JSONException e) {
             e.printStackTrace();
             Log.e(TAG, "JSON Exception"+e.getMessage());
@@ -194,7 +257,6 @@ public class NetworkManager {
 
             @Override
             public void run() {
-                progressListener.onNewFileDownload(url);
                 Request request = new Request.Builder()
                         .url(url)
                         .build();
@@ -205,7 +267,6 @@ public class NetworkManager {
                     Response response = client.newCall(request).execute();
                     long diff = System.currentTimeMillis() - before;
                     completedFileCount++;
-                    progressListener.onProgressUpdate(completedFileCount, totalFileCount);
                     if (response.isSuccessful()) {
                         sendStatsToServer(url, diff, response.body().contentLength());
                     }
