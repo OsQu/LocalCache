@@ -1,7 +1,7 @@
 Local Cache - Mobile Systems Programming
 ========================================
 
-TODO: Document here our git usage patterns etc..
+Simple Caching system used to cache HS.fi API. A school project :-)
 
 Modules
 -------
